@@ -29,3 +29,9 @@ dist-ssr
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+.env
+.playwright-mcp/
+
+./docs/db-password.txt
+.vercel
