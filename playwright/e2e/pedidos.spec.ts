@@ -11,7 +11,7 @@ test.describe('Consulta de Pedido', () => {
 
   test('deve consultar um pedido aprovado', async ({ app }) => {
     const order: OrderDetails = {
-      number: 'VLO-SE4R01',
+      number: generateOrderCode(),
       status: 'APROVADO',
       color: 'Lunar White',
       wheels: 'sport Wheels',
@@ -20,7 +20,6 @@ test.describe('Consulta de Pedido', () => {
         email: '610thiago@gmail.com',
       },
       payment: 'À Vista',
-      total_price: '47500'
     }
 
     await deleteOrderByNumber(order.number)
@@ -47,7 +46,7 @@ test.describe('Consulta de Pedido', () => {
 
   test('deve consultar um pedido reprovado', async ({ app }) => {
     const order: OrderDetails = {
-      number: 'VLO-SE4R02',
+      number: generateOrderCode(),
       status: 'REPROVADO',
       color: 'Midnight Black',
       wheels: 'sport Wheels',
@@ -82,7 +81,7 @@ test.describe('Consulta de Pedido', () => {
 
   test('deve consultar um pedido em analise', async ({ app }) => {
     const order: OrderDetails = {
-      number: 'VLO-SE4R03',
+      number: generateOrderCode(),
       status: 'EM_ANALISE',
       color: 'Lunar White',
       wheels: 'aero Wheels',
