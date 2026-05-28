@@ -50,6 +50,15 @@ export function createCheckoutActions(page: Page) {
         },
 
         async selectPaymentMethod(method: string) {
+            const methodKey = method.toLowerCase()
+            if (methodKey.includes('vista')) {
+                await page.getByTestId('payment-avista').click()
+                return
+            }
+            if (methodKey.includes('financiamento')) {
+                await page.getByTestId('payment-financiamento').click()
+                return
+            }
             await page.getByRole('button', { name: new RegExp(method, 'i') }).click()
         },
 

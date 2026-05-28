@@ -5,10 +5,13 @@ import { Pool } from 'pg';
 import crypto from 'crypto'
 
 
+import { fileURLToPath } from 'url'
+
 // Tenta carregar do .env se não estiver no process.env
 if (!process.env.DATABASE_URL) {
   try {
-    const envPath = path.resolve(process.cwd(), '.env')
+    const __dirname = path.dirname(fileURLToPath(import.meta.url))
+    const envPath = path.resolve(__dirname, '../../.env')
     const envContent = fs.readFileSync(envPath, 'utf-8')
     const match = envContent.match(/DATABASE_URL=(.*)/)
     if (match && match[1]) {

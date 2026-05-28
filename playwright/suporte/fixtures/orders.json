@@ -40,5 +40,43 @@
     },
     "payment": "À Vista",
     "total_price": "40000"
+  },
+  "checkout_limite_caracteres": {
+    "name": "A",
+    "lastname": "B",
+    "email": "papito@teste.com",
+    "document": "00000014141",
+    "phone": "(11) 99999-9999"
+  },
+  "checkout_email_invalido": {
+    "name": "Fernando",
+    "lastname": "Papito",
+    "email": "papito@.com",
+    "document": "00000014141",
+    "phone": "(11) 99999-9999"
+  },
+  "checkout_cpf_invalido": {
+    "name": "Fernando",
+    "lastname": "Papito",
+    "email": "papito@test.com",
+    "document": "00000014199",
+    "phone": "(11) 99999-9999"
+  },
+  "checkout_dados_validos": {
+    "name": "Fernando",
+    "lastname": "Papito",
+    "email": "papito@test.com",
+    "document": "00000014199",
+    "phone": "(11) 99999-9999"
+  },
+  "checkout_pagamento_vista": {
+    "name": "Fernando",
+    "lastname": "Papito",
+    "email": "papito@teste.com",
+    "document": "05366127068",
+    "phone": "(11) 99999-9999",
+    "store": "Velô Paulista",
+    "paymentMethod": "À Vista",
+    "totalPrice": "R$ 40.000,00"
   }
 }

@@ -1,7 +1,7 @@
 import { test, expect } from '../suporte/fixtures'
 
 import { deleteOrderByEmail } from '../suporte/database/orderRepository'
-
+import testData from '../suporte/fixtures/orders.json' with { type: 'json' }
 test.describe('Checkout', () => {
 
 
@@ -34,15 +34,10 @@ test.describe('Checkout', () => {
 
     test('deve validar limite mínimo de caracteres para Nome e Sobrenome', async ({ app }) => {
 
-      const customer = {
-        name: 'A',
-        lastname: 'B',
-        email: 'papito@teste.com',
-        document: '00000014141',
-        phone: '(11) 99999-9999'
-      }
+      const customer = testData.checkout_limite_caracteres
 
       // Arrange
+      await deleteOrderByEmail(customer.email)
       await app.checkout.fillCustomerlData(customer)
       await app.checkout.selectStore('Velô Paulista')
       await app.checkout.acceptTerms()
@@ -56,15 +51,10 @@ test.describe('Checkout', () => {
     })
 
     test('deve exibir erro para e-mail com formato inválido', async ({ app }) => {
-      const customer = {
-        name: 'Fernando',
-        lastname: 'Papito',
-        email: 'papito@.com',
-        document: '00000014141',
-        phone: '(11) 99999-9999'
-      }
+      const customer = testData.checkout_email_invalido
 
       // Arrange
+      await deleteOrderByEmail(customer.email)
       await app.checkout.fillCustomerlData(customer)
       await app.checkout.selectStore('Velô Paulista')
       await app.checkout.acceptTerms()
@@ -78,15 +68,10 @@ test.describe('Checkout', () => {
 
     test('deve exibir erro para CPF inválido', async ({ app }) => {
 
-      const customer = {
-        name: 'Fernando',
-        lastname: 'Papito',
-        email: 'papito@test.com',
-        document: '00000014199',
-        phone: '(11) 99999-9999'
-      }
+      const customer = testData.checkout_cpf_invalido
 
       // Arrange
+      await deleteOrderByEmail(customer.email)
       await app.checkout.fillCustomerlData(customer)
       await app.checkout.selectStore('Velô Paulista')
       await app.checkout.acceptTerms()
@@ -100,15 +85,10 @@ test.describe('Checkout', () => {
 
     test('deve exigir o aceite dos termos ao finalizar com dados válidos', async ({ app }) => {
 
-      const customer = {
-        name: 'Fernando',
-        lastname: 'Papito',
-        email: 'papito@test.com',
-        document: '00000014199',
-        phone: '(11) 99999-9999'
-      }
+      const customer = testData.checkout_dados_validos
 
       // Arrange
+      await deleteOrderByEmail(customer.email)
       await app.checkout.fillCustomerlData(customer)
       await app.checkout.selectStore('Velô Paulista')
 
@@ -127,17 +107,9 @@ test.describe('Checkout', () => {
     test('deve criar um pedido com sucesso para pagamento à vista', async ({ page, app }) => {
 
       const customer = {
-        name: 'Fernando',
-        lastname: 'Papito',
-        email: 'papito@teste.com',
-        document: '05366127068',
-        phone: '(11) 99999-9999',
-        store: 'Velô Paulista',
-        paymentMethod: 'À Vista',
-        totalPrice: 'R$ 40.000,00'
+        ...testData.checkout_pagamento_vista,
+        email: `papito+vista-${Date.now()}@teste.com`
       }
-
-      await deleteOrderByEmail(customer.email)
 
       // Arrange
       await page.goto('/')
