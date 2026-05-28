@@ -62,5 +62,25 @@ export function createVehicleConfiguratorActions(page: Page) {
       await expect(page.getByRole('heading', { name: 'Resumo' })).toBeVisible()
       await expect(page.getByText('Total').locator('..').getByText(expectedPrice)).toBeVisible()
     },
+
+    async expectPrice(expectedPrice: string) {
+      await this.validateSalePrice(expectedPrice);
+    },
+
+    async expectCarImageSrc(expectedSrc: string) {
+      await expect(this.elements.carPreview).toHaveAttribute('src', expectedSrc);
+    },
+
+    async checkOptional(optionalName: string) {
+      await this.setOptional(optionalName, true);
+    },
+
+    async uncheckOptional(optionalName: string) {
+      await this.setOptional(optionalName, false);
+    },
+
+    async finishConfigurator() {
+      await this.goToCheckout();
+    },
   }
 }

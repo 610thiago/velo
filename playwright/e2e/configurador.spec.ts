@@ -1,49 +1,45 @@
-import { expect, test } from '../suporte/fixtures'
+import { test } from '../suporte/fixtures'
 
 test.describe('Configuração do Veículo', () => {
   test.beforeEach(async ({ app }) => {
-    await app.vehicleConfigurator.open()
+    await app.configurator.open()
   })
 
-  test('deve atualizar a visualização ao alterar a cor, mantendo o preço base', async ({ app }) => {
-    await app.vehicleConfigurator.validateBaseState()
-    await app.vehicleConfigurator.selectColor('Lunar White')
+  test('deve atualizar a imagem e manter o preço base ao trocar a cor do veículo', async ({ app }) => {
+    await app.configurator.expectPrice('R$ 40.000,00')
 
-    await expect(app.vehicleConfigurator.elements.colorButton('Lunar White')).toBeVisible()
-    await app.vehicleConfigurator.validateSalePrice('R$ 40.000,00')
-    await app.vehicleConfigurator.validatePreviewAlt(/lunar-white with aero wheels/i)
+    await app.configurator.selectColor('Midnight Black')
+    await app.configurator.expectPrice('R$ 40.000,00')
+    await app.configurator.expectCarImageSrc('/src/assets/midnight-black-aero-wheels.png')
   })
 
-  test('deve atualizar o preço e a visualização apenas ao alterar as rodas', async ({ app }) => {
-    await app.vehicleConfigurator.validateBaseState()
+  test('deve atualizar o preço e a imagem ao alterar as rodas, e restaurar os valores padrão', async ({ app }) => {
+    await app.configurator.expectPrice('R$ 40.000,00')
 
-    await app.vehicleConfigurator.selectWheels('Sport Wheels')
-    await expect(app.vehicleConfigurator.elements.wheelsButton('Sport Wheels')).toBeVisible()
-    await app.vehicleConfigurator.validateSalePrice('R$ 42.000,00')
-    await app.vehicleConfigurator.validatePreviewAlt(/with sport wheels/i)
+    await app.configurator.selectWheels(/Sport Wheels/)
+    await app.configurator.expectPrice('R$ 42.000,00')
+    await app.configurator.expectCarImageSrc('/src/assets/glacier-blue-sport-wheels.png')
 
-    await app.vehicleConfigurator.selectWheels('Aero Wheels')
-    await expect(app.vehicleConfigurator.elements.wheelsButton('Aero Wheels')).toBeVisible()
-    await app.vehicleConfigurator.validateSalePrice('R$ 40.000,00')
-    await app.vehicleConfigurator.validatePreviewAlt(/with aero wheels/i)
+    await app.configurator.selectWheels(/Aero Wheels/)
+    await app.configurator.expectPrice('R$ 40.000,00')
+    await app.configurator.expectCarImageSrc('/src/assets/glacier-blue-aero-wheels.png')
   })
 
-  test('deve atualizar o preço ao adicionar opcionais e persistir no checkout', async ({ app }) => {
-    await app.vehicleConfigurator.validateBaseState()
+  test('deve atualizar o preço com opcionais e persistir no checkout', async ({ app }) => {
+    await app.configurator.expectPrice('R$ 40.000,00')
 
-    await app.vehicleConfigurator.setOptional('Precision Park', true)
-    await app.vehicleConfigurator.validateSalePrice('R$ 45.500,00')
+    await app.configurator.checkOptional(/Precision Park/i)
+    await app.configurator.expectPrice('R$ 45.500,00')
 
-    await app.vehicleConfigurator.setOptional('Flux Capacitor', true)
-    await app.vehicleConfigurator.validateSalePrice('R$ 50.500,00')
+    await app.configurator.checkOptional(/Flux Capacitor/i)
+    await app.configurator.expectPrice('R$ 50.500,00')
 
-    await app.vehicleConfigurator.setOptional('Precision Park', false)
-    await app.vehicleConfigurator.validateSalePrice('R$ 45.000,00')
+    await app.configurator.uncheckOptional(/Precision Park/i)
+    await app.configurator.uncheckOptional(/Flux Capacitor/i)
+    await app.configurator.expectPrice('R$ 40.000,00')
 
-    await app.vehicleConfigurator.setOptional('Flux Capacitor', false)
-    await app.vehicleConfigurator.validateSalePrice('R$ 40.000,00')
-
-    await app.vehicleConfigurator.goToCheckout()
-    await app.vehicleConfigurator.validateCheckoutTotal('R$ 40.000,00')
+    await app.configurator.finishConfigurator()
+    await app.checkout.expectLoaded()
+    await app.checkout.expectSummaryTotal('R$ 40.000,00')
   })
 })

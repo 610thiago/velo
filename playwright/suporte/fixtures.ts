@@ -1,20 +1,24 @@
-import { test as base } from '@playwright/test'
-import { createOrderLookupActions } from './actions/orderLockupActions'
-import { createVehicleConfiguratorActions } from './actions/configuratorActions'
+// playwright/suporte/fixtures.ts
+import { test as base } from '@playwright/test';
+import { createOrderLookupActions } from './actions/orderLookupActions';
+import { createVehicleConfiguratorActions } from './actions/configuratorActions';
+import { createCheckoutActions } from './actions/checkoutActions';
 
 type App = {
-  orderLockup: ReturnType<typeof createOrderLookupActions>
-  vehicleConfigurator: ReturnType<typeof createVehicleConfiguratorActions>
-}
+  orderLookup: ReturnType<typeof createOrderLookupActions>;
+  configurator: ReturnType<typeof createVehicleConfiguratorActions>;
+  checkout: ReturnType<typeof createCheckoutActions>;
+};
 
 export const test = base.extend<{ app: App }>({
   app: async ({ page }, use) => {
     const app: App = {
-      orderLockup: createOrderLookupActions(page),
-      vehicleConfigurator: createVehicleConfiguratorActions(page),
-    }
-    await use(app)
+      orderLookup: createOrderLookupActions(page),
+      configurator: createVehicleConfiguratorActions(page),
+      checkout: createCheckoutActions(page),
+    };
+    await use(app);
   },
-})
+});
 
-export { expect } from '@playwright/test'
+export { expect } from '@playwright/test';

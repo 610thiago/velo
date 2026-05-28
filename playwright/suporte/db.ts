@@ -1,9 +1,9 @@
 import fs from 'fs'
 import path from 'path'
 import { Kysely, PostgresDialect } from 'kysely'
-import pg from 'pg'
+import { Pool } from 'pg';
 import crypto from 'crypto'
-const { Pool } = pg
+
 
 // Tenta carregar do .env se não estiver no process.env
 if (!process.env.DATABASE_URL) {
@@ -19,9 +19,9 @@ if (!process.env.DATABASE_URL) {
   }
 }
 
-let connectionString = process.env.DATABASE_URL;
 
-console.log('--- DATABASE_URL no db.ts ---', connectionString)
+
+// console.log removido por questões de segurança
 
 // Types matching the orders table schema
 export interface OrdersTable {
@@ -87,3 +87,43 @@ export async function deleteOrderByNumber(orderNumber: string) {
     .execute()
 }
 
+const colorSlugMap: Record<string, string> = {
+  'Lunar White': 'lunar-white',
+  'Midnight Black': 'midnight-black',
+  'Racing Red': 'racing-red',
+}
+
+const wheelTypeMap: Record<string, string> = {
+  'Sport Wheels': 'sport',
+  'Aero Wheels': 'aero',
+}
+
+/**
+ * Inserts an order from a fixture object directly, mapping display values to DB format.
+ */
+export async function insertOrder(order: {
+  number: string
+  status: string
+  color: string
+  wheels: string
+  customer: { name: string; email: string }
+  payment: string
+  customer_phone: string
+  customer_cpf: string
+  total_price: string
+  optionals: string[]
+}) {
+  return insertTestOrder({
+    order_number: order.number,
+    color: colorSlugMap[order.color] ?? order.color,
+    wheel_type: wheelTypeMap[order.wheels] ?? order.wheels,
+    customer_name: order.customer.name,
+    customer_email: order.customer.email,
+    customer_phone: order.customer_phone,
+    customer_cpf: order.customer_cpf,
+    payment_method: order.payment,
+    total_price: order.total_price,
+    status: order.status,
+    optionals: order.optionals,
+  })
+}
