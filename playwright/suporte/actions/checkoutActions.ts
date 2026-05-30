@@ -62,6 +62,11 @@ export function createCheckoutActions(page: Page) {
             await page.getByRole('button', { name: new RegExp(method, 'i') }).click()
         },
 
+        async fillDownPayment(value: string | number) {
+            await page.getByTestId('payment-financiamento').click()
+            await page.getByTestId('input-entry-value').fill(String(value))
+        },
+
         async acceptTerms() {
             await terms.check()
         },

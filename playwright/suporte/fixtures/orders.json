@@ -78,5 +78,74 @@
     "store": "Velô Paulista",
     "paymentMethod": "À Vista",
     "totalPrice": "R$ 40.000,00"
+  },
+  "checkout_financiamento_score_alto": {
+    "name": "Steve",
+    "lastname": "Woz",
+    "email": "woz@velo.dev",
+    "document": "65493881047",
+    "phone": "(11) 99999-9999",
+    "store": "Velô Paulista",
+    "paymentMethod": "Financiamento",
+    "totalPrice": "R$ 40.000,00",
+    "score": 710
+  },
+  "checkout_financiamento_score_medio": {
+    "name": "Tony",
+    "lastname": "Stark",
+    "email": "tony@stark.com",
+    "document": "74690251037",
+    "phone": "(11) 99999-9999",
+    "store": "Velô Paulista",
+    "paymentMethod": "Financiamento",
+    "totalPrice": "R$ 40.000,00",
+    "score": 600
+  },
+  "checkout_financiamento_score_baixo_sem_entrada": {
+    "name": "Clark",
+    "lastname": "Kent",
+    "email": "clark@dailyplanet.com",
+    "document": "52998224725",
+    "phone": "(11) 99999-9999",
+    "store": "Velô Paulista",
+    "paymentMethod": "Financiamento",
+    "totalPrice": "R$ 40.000,00",
+    "score": 500
+  },
+  "checkout_financiamento_score_baixo_entrada_menor_50": {
+    "name": "Diana",
+    "lastname": "Prince",
+    "email": "diana@themiscira.com",
+    "document": "11144477735",
+    "phone": "(11) 99999-9999",
+    "store": "Velô Paulista",
+    "paymentMethod": "Financiamento",
+    "totalPrice": "R$ 40.000,00",
+    "downPayment": "10000",
+    "score": 500
+  },
+  "checkout_financiamento_score_baixo_entrada_igual_50": {
+    "name": "Richard",
+    "lastname": "Fortus",
+    "email": "richard@gmail.com",
+    "document": "39434745004",
+    "phone": "(11) 99999-9999",
+    "store": "Velô Paulista",
+    "paymentMethod": "Financiamento",
+    "totalPrice": "R$ 40.000,00",
+    "downPayment": "20000",
+    "score": 450
+  },
+  "checkout_financiamento_score_baixo_entrada_maior_50": {
+    "name": "Axl",
+    "lastname": "Rose",
+    "email": "alx@gnr.com",
+    "document": "79327557000",
+    "phone": "(11) 99999-9999",
+    "store": "Velô Paulista",
+    "paymentMethod": "Financiamento",
+    "totalPrice": "R$ 40.000,00",
+    "downPayment": "30000",
+    "score": 300
   }
 }
