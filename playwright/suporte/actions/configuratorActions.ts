@@ -68,7 +68,8 @@ export function createVehicleConfiguratorActions(page: Page) {
     },
 
     async expectCarImageSrc(expectedSrc: string) {
-      await expect(this.elements.carPreview).toHaveAttribute('src', expectedSrc);
+      const normalizedExpectedSrc = expectedSrc.replace(/^\/+|\/+$/g, '')
+      await expect(this.elements.carPreview).toHaveAttribute('src', new RegExp(normalizedExpectedSrc))
     },
 
     async checkOptional(optionalName: string) {

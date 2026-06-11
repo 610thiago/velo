@@ -5,8 +5,6 @@ import { createVehicleConfiguratorActions } from './actions/configuratorActions'
 import { createCheckoutActions } from './actions/checkoutActions';
 import { mockCreditAnalysis } from './mock.api';
 
-import { mockCreditAnalysis } from './mock.api'
-
 type App = {
   orderLookup: ReturnType<typeof createOrderLookupActions>;
   configurator: ReturnType<typeof createVehicleConfiguratorActions>;
