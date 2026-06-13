@@ -7,7 +7,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
 
- //Tempo maximo para cada teste completo (30 Segundos é o padrão)
+  //Tempo maximo para cada teste completo (30 Segundos é o padrão)
   timeout: 60_000,
 
   //Tempo máximo para assertions (toBeVisible(), toHaveText() 5 segundos)
@@ -30,7 +30,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'https://velo-thiago.vercel.app/',
+    baseURL: 'https://velo-hn2omkm2a-610thiago-souza-s-projects1.vercel.app/',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -54,15 +54,15 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
-//    {
-//      name: 'firefox',
-//      use: { ...devices['Desktop Firefox'] },
-//    },
-//
-//    {
-//      name: 'webkit',
-//      use: { ...devices['Desktop Safari'] },
-//    },
+    //    {
+    //      name: 'firefox',
+    //      use: { ...devices['Desktop Firefox'] },
+    //    },
+    //
+    //    {
+    //      name: 'webkit',
+    //      use: { ...devices['Desktop Safari'] },
+    //    },
 
     /* Test against mobile viewports. */
     // {
@@ -85,11 +85,13 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
+  /* webServer desativado: testes rodando contra URL remota (Vercel).
+   * Descomente abaixo apenas para testar contra o servidor local.
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
+  */
 });
