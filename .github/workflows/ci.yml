@@ -69,7 +69,7 @@ jobs:
       
       # Build para o Vercel
       - name: Build Vercel
-        rtun: yar vercel build --token=$VERCELL_TOKEN
+        rtun: yarn vercel build --token=$VERCELL_TOKEN
 
       #Deploy preview no vercel
       - name: Deploy preview
