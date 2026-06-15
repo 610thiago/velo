@@ -2,8 +2,7 @@
 # Objetivo: executar testes unitários a cada push na branch main.
 # Estrutura mantida simples e preparada para futuras expansões.
 
-name: Continuous Integration
-
+name: Continuous Deployment
 on:
   push:
     branches:
@@ -116,7 +115,7 @@ jobs:
 
       # Execução dos Testes de Regressão
       - name: Run E2E Regression Tests
-        run: yarn test:e2e test playwright/e2e/online.spec.ts
+        run: yarn test:e2e test
         env:
           BASE_URL: ${{ needs.build-and-deplyoy.outputs.deployment-url }}
 
@@ -127,5 +126,18 @@ jobs:
         with:
           name: playwright-report
           path: playwright-report
+
+  promote:
+    name: Promote to Production
+    needs: [e2e-tests]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Vercel promote
+      run: |
+        yarn vercel promote ${{ needs.build-and-deplyoy.outputs.deployment-url }} \
+        --token=$VERCELL_TOKEN \
+        --scope=$VERCELL_SCOPE \
+        --yes
         
     
