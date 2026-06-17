@@ -10,7 +10,7 @@ on:
 
 env:
   NODE_VERSION: '24'
-  VERCELL_TOKEN: ${{ secrets.VERCELL_TOKEN }}
+  VERCELL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCELL_SCOPE: 610thiago-souza-s-projects1
@@ -23,7 +23,7 @@ jobs:
 
     steps:
       # Realiza o checkout do código-fonte
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v6.0.3
 
       # Configura a versão do Node.js utilizada no projeto
@@ -44,7 +44,7 @@ jobs:
       - name: Run unit tests
         run: yarn test
 
-  build-and-deplyoy:
+  build-and-deploy:
     name: Build & Deploy Vercel Preview
     needs: [unit-tests]
     runs-on: ubuntu-latest
@@ -75,18 +75,18 @@ jobs:
         run: |
           yarn vercel pull --yes \
           --environment=preview \
-          --token=$VERCELL_TOKEN  \
-          --scope=$VERCELL_SCOPE
+          --token=$VERCEL_TOKEN  \
+          --scope=$VERCEL_SCOPE
       
       # Build para o Vercel
       - name: Build Vercel
-        run: yarn vercel build --token=$VERCELL_TOKEN
+        run: yarn vercel build --token=$VERCEL_TOKEN
 
       # Deploy preview no vercel
       - name: Deploy preview
         id: deploy
         run: |
-          URL=$(yarn --silent vercel deploy --prebuilt --target=preview --token=$VERCELL_TOKEN --scope=$VERCELL_SCOPE)
+          URL=$(yarn --silent vercel deploy --prebuilt --target=preview --token=$VERCEL_TOKEN --scope=$VERCEL_SCOPE)
           echo "deployment-url=${URL}" >> $GITHUB_OUTPUT
 
   e2e-tests:
@@ -132,7 +132,7 @@ jobs:
           path: playwright-report
 
       #Publicar report JSON do testDino
-      - name: Publicar report JSON do TestDino
+      - name: Publish Testdino Report
         if: ${{ !cancelled() }}
         run: npx tdpw upload ./playwright-report --token=${{ secrets.TD_TOKEN }}
 
@@ -145,8 +145,8 @@ jobs:
     - name: Vercel promote
       run: |
         npx vercel@latest promote ${{ needs.build-and-deploy.outputs.deployment-url }
-        --token=$VERCELL_TOKEN \
-        --scope=$VERCELL_SCOPE \
+        --token=$VERCEL_TOKEN \
+        --scope=$VERCEL_SCOPE \
         --yes
         
     
