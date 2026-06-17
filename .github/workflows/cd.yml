@@ -37,11 +37,11 @@ jobs:
         run: corepack enable
 
       # Instala as dependências utilizando o lockfile
-      - name: Install Dependencies
-        run: yarn install --immutable
+      - name: Install dependencies
+        run: yarn install
 
       # Executa os testes unitários com Vitest
-      - name: Run Unit Tests
+      - name: Run unit tests
         run: yarn test
 
   build-and-deplyoy:
@@ -53,7 +53,7 @@ jobs:
 
     steps:
       # Realiza o checkout do código-fonte
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v6.0.3
 
       # Configura a versão do Node.js utilizada no projeto
@@ -67,12 +67,16 @@ jobs:
         run: corepack enable
 
       # Instala as dependências utilizando o lockfile
-      - name: Install Dependencies
-        run: yarn install --immutable
+      - name: Install dependencies
+        run: yarn install
 
       # Obter as configurações do vercel
       - name: Pull Vercel Config
-        run: yarn vercel pull --yes --environment=preview --token=$VERCELL_TOKEN  --scope=$VERCELL_SCOPE
+        run: |
+          yarn vercel pull --yes \
+          --environment=preview \
+          --token=$VERCELL_TOKEN  \
+          --scope=$VERCELL_SCOPE
       
       # Build para o Vercel
       - name: Build Vercel
@@ -87,12 +91,12 @@ jobs:
 
   e2e-tests:
     name: Run E2E Tests
-    needs: [build-and-deplyoy]
+    needs: [build-and-deploy]
     runs-on: ubuntu-latest
 
     steps:
       # Realiza o checkout do código-fonte
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v6.0.3
 
       # Configura a versão do Node.js utilizada no projeto
@@ -106,21 +110,21 @@ jobs:
         run: corepack enable
 
       # Instala as dependências utilizando o lockfile
-      - name: Install Dependencies
-        run: yarn install --immutable
+      - name: Install dependencies
+        run: yarn install
 
       #Instalação do Chromium
-      - name: Install Playwright Browsers
-        run: yarn playwright install chromium
+      - name: Install Plawright Browser
+        run: yarn playwright install --with-deps chromium
 
       # Execução dos Testes de Regressão
       - name: Run E2E Regression Tests
-        run: yarn test:e2e test
+        run: yarn playwright test
         env:
-          BASE_URL: ${{ needs.build-and-deplyoy.outputs.deployment-url }}
+          BASE_URL: ${{ needs.build-and-deploy.outputs.deployment-url }}
 
       # Relatório de testes Automatizados
-      - name: Upload Test Report
+      - name: Upload Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7.0.1
         with:
@@ -128,13 +132,13 @@ jobs:
           path: playwright-report
 
       #Publicar report JSON do testDino
-      - name: Publish TestDino Report
+      - name: Publicar report JSON do TestDino
         if: ${{ !cancelled() }}
-        run: npx tdpw upload  ./playwright-report --token=${{ secrets.TD_TOKEN}}
+        run: npx tdpw upload ./playwright-report --token=${{ secrets.TD_TOKEN }}
 
   promote:
     name: Promote to Production
-    needs: [e2e-tests]
+    needs: [build-and-deploy, e2e-tests]
     runs-on: ubuntu-latest
     
     steps:

@@ -91,13 +91,13 @@ export default defineConfig({
     // },
   ],
 
-  /* webServer desativado: testes rodando contra URL remota (Vercel).
-   * Descomente abaixo apenas para testar contra o servidor local.
+  /* webServer desativado: testes rodando contra URL remota (Vercel).*/
+
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
-  */
+
 });
