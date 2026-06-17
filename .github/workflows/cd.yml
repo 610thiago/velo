@@ -135,7 +135,7 @@ jobs:
     steps:
     - name: Vercel promote
       run: |
-        yarn vercel promote ${{ needs.build-and-deplyoy.outputs.deployment-url }} \
+        npx vercel@latest promote ${{ needs.build-and-deplyoy.outputs.deployment-url }} \
         --token=$VERCELL_TOKEN \
         --scope=$VERCELL_SCOPE \
         --yes
