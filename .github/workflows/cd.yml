@@ -117,12 +117,25 @@ jobs:
       - name: Install Playwright Browser
         run: npx playwright install --with-deps chromium
 
+      # Obter a configuração de preview para fornecer o DATABASE_URL aos testes
+      - name: Pull Preview Vercel Config for E2E
+        run: |
+          yarn vercel pull --yes \
+          --environment=preview \
+          --token=$VERCEL_TOKEN \
+          --scope=$VERCEL_SCOPE
+
+      # Exporta o DATABASE_URL do preview para o processo do Playwright
+      - name: Load Preview Database URL
+        run: |
+          DATABASE_URL=$(grep '^DATABASE_URL=' .vercel/.env.preview.local | head -n 1 | cut -d= -f2- | sed 's/^=//; s/^"//; s/"$//')
+          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+
       # Execução dos Testes de Regressão
       - name: Run E2E Regression Tests
         run: yarn playwright test
         env:
           BASE_URL: ${{ needs.build-and-deploy.outputs.deployment-url }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL_PREVIEW }}
 
       # Relatório de testes Automatizados
       - name: Upload Playwright report
