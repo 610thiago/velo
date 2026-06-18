@@ -177,45 +177,42 @@ jobs:
           --token=$VERCEL_TOKEN \
           --scope=$VERCEL_SCOPE
 
-      # Vite lê .env.production.local no build. Copiamos do arquivo versionado no repo.
-      - name: Prepare Vite production environment
+      # vercel build ignora .env.production.local — usamos vite build direto com env exportado.
+      - name: Build and package for Production
         run: |
-          if [ ! -f .env.production ]; then
-            echo "::error::.env.production não encontrado no repositório."
-            exit 1
-          fi
-          cp .env.production .env.production.local
+          set -a
+          # shellcheck disable=SC1091
+          . ./.env.production
+          set +a
+
           for var in VITE_SUPABASE_URL VITE_SUPABASE_PUBLISHABLE_KEY VITE_SUPABASE_PROJECT_ID; do
-            if ! grep -q "^${var}=." .env.production.local; then
+            if [ -z "${!var}" ]; then
               echo "::error::${var} ausente em .env.production"
               exit 1
             fi
-            echo "${var} configurado"
           done
 
-      - name: Build Vercel for Production
-        run: yarn vercel build --prod --token=$VERCEL_TOKEN --scope=$VERCEL_SCOPE
+          yarn build
 
-      - name: Verify Supabase config in production bundle
-        run: |
-          PROJECT_ID=$(grep '^VITE_SUPABASE_PROJECT_ID=' .env.production.local | cut -d= -f2- | tr -d '"')
-          JS_FILE=$(find .vercel/output/static/assets dist/assets -name 'index-*.js' 2>/dev/null | head -1)
+          JS_FILE=$(find dist/assets -name 'index-*.js' | head -1)
           if [ -z "$JS_FILE" ]; then
-            echo "::error::Bundle JS de produção não encontrado após o build."
+            echo "::error::Bundle JS não encontrado em dist/assets."
             exit 1
           fi
           if ! grep -q "supabase.co" "$JS_FILE"; then
-            echo "::error::Bundle sem supabase.co — VITE_SUPABASE_URL não foi embutida no build."
+            echo "::error::Vite não embutiu supabase.co — verifique .env.production"
             exit 1
           fi
-          if ! grep -q "$PROJECT_ID" "$JS_FILE"; then
-            echo "::error::Bundle sem o project ID de produção ($PROJECT_ID)."
+          if ! grep -q "$VITE_SUPABASE_PROJECT_ID" "$JS_FILE"; then
+            echo "::error::Vite não embutiu o project ID de produção."
             exit 1
           fi
-          echo "Bundle de produção verificado: $JS_FILE"
+          echo "Bundle verificado: $JS_FILE"
+
+          mkdir -p .vercel/output/static
+          cp -r dist/* .vercel/output/static/
+          echo '{"version":3,"routes":[{"handle":"filesystem"},{"src":"/(.*)","dest":"/index.html"}]}' > .vercel/output/config.json
 
       - name: Deploy to Production
-        run: |
-          yarn vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN --scope=$VERCEL_SCOPE
-        
+        run: yarn vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN --scope=$VERCEL_SCOPE
     
