@@ -187,14 +187,10 @@ jobs:
         run: |
           : > .env.production.local
 
-          yarn vercel env run -e production \
+          npx vercel env run -e production \
             --token=$VERCEL_TOKEN \
             --scope=$VERCEL_SCOPE \
-            -- sh -c '
-              [ -n "$VITE_SUPABASE_URL" ] && echo "VITE_SUPABASE_URL=$VITE_SUPABASE_URL"
-              [ -n "$VITE_SUPABASE_PUBLISHABLE_KEY" ] && echo "VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY"
-              [ -n "$VITE_SUPABASE_PROJECT_ID" ] && echo "VITE_SUPABASE_PROJECT_ID=$VITE_SUPABASE_PROJECT_ID"
-            ' >> .env.production.local
+            -- env | grep -E '^VITE_SUPABASE_(URL|PUBLISHABLE_KEY|PROJECT_ID)=' >> .env.production.local || true
 
           for var in VITE_SUPABASE_URL VITE_SUPABASE_PUBLISHABLE_KEY VITE_SUPABASE_PROJECT_ID; do
             if grep -q "^${var}=." .env.production.local; then
