@@ -177,39 +177,26 @@ jobs:
           --token=$VERCEL_TOKEN \
           --scope=$VERCEL_SCOPE
 
-      # O vercel pull pode gerar chaves vazias no arquivo local.
-      # Buscamos os valores reais via vercel env run e gravamos onde o Vite lê.
+      # Produção: GitHub Secrets são a fonte confiável no CI (Vercel Production costuma vir vazio no pull).
       - name: Prepare Vite production environment
         env:
-          GH_VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL_PROD }}
-          GH_VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY_PROD }}
-          GH_VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID_PROD }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL_PROD }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY_PROD }}
+          VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID_PROD }}
         run: |
-          : > .env.production.local
-
-          npx vercel env run -e production \
-            --token=$VERCEL_TOKEN \
-            --scope=$VERCEL_SCOPE \
-            -- env | grep -E '^VITE_SUPABASE_(URL|PUBLISHABLE_KEY|PROJECT_ID)=' >> .env.production.local || true
-
+          missing=0
           for var in VITE_SUPABASE_URL VITE_SUPABASE_PUBLISHABLE_KEY VITE_SUPABASE_PROJECT_ID; do
-            if grep -q "^${var}=." .env.production.local; then
-              continue
-            fi
-            gh_var="GH_${var}"
-            value="${!gh_var}"
-            if [ -n "$value" ]; then
-              echo "${var}=${value}" >> .env.production.local
+            if [ -z "${!var}" ]; then
+              echo "::error::Secret ${var}_PROD ausente. Adicione em GitHub > Settings > Secrets and variables > Actions."
+              missing=1
             fi
           done
+          [ "$missing" -eq 1 ] && exit 1
 
-          for var in VITE_SUPABASE_URL VITE_SUPABASE_PUBLISHABLE_KEY VITE_SUPABASE_PROJECT_ID; do
-            if ! grep -q "^${var}=." .env.production.local; then
-              echo "::error::${var} ausente. Marque a variável para o ambiente Production na Vercel ou crie o secret GitHub ${var}_PROD."
-              exit 1
-            fi
-            echo "${var} configurado"
-          done
+          printf 'VITE_SUPABASE_URL=%s\n' "$VITE_SUPABASE_URL" > .env.production.local
+          printf 'VITE_SUPABASE_PUBLISHABLE_KEY=%s\n' "$VITE_SUPABASE_PUBLISHABLE_KEY" >> .env.production.local
+          printf 'VITE_SUPABASE_PROJECT_ID=%s\n' "$VITE_SUPABASE_PROJECT_ID" >> .env.production.local
+          echo "Variáveis de produção carregadas via GitHub Secrets"
 
       - name: Build Vercel for Production
         run: yarn vercel build --prod --token=$VERCEL_TOKEN --scope=$VERCEL_SCOPE
