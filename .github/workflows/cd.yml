@@ -178,7 +178,7 @@ jobs:
           --scope=$VERCEL_SCOPE
           
       - name: Build Vercel for Production
-        run: yarn vercel env run -e production -- yarn vercel build --prod --token=$VERCEL_TOKEN
+        run: yarn vercel env run -e production -- yarn vercel build --token=$VERCEL_TOKEN
         
       - name: Deploy to Production
         run: |
