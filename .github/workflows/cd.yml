@@ -177,26 +177,21 @@ jobs:
           --token=$VERCEL_TOKEN \
           --scope=$VERCEL_SCOPE
 
-      # Produção: GitHub Secrets são a fonte confiável no CI (Vercel Production costuma vir vazio no pull).
+      # Vite lê .env.production.local no build. Copiamos do arquivo versionado no repo.
       - name: Prepare Vite production environment
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL_PROD }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY_PROD }}
-          VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID_PROD }}
         run: |
-          missing=0
+          if [ ! -f .env.production ]; then
+            echo "::error::.env.production não encontrado no repositório."
+            exit 1
+          fi
+          cp .env.production .env.production.local
           for var in VITE_SUPABASE_URL VITE_SUPABASE_PUBLISHABLE_KEY VITE_SUPABASE_PROJECT_ID; do
-            if [ -z "${!var}" ]; then
-              echo "::error::Secret ${var}_PROD ausente. Adicione em GitHub > Settings > Secrets and variables > Actions."
-              missing=1
+            if ! grep -q "^${var}=." .env.production.local; then
+              echo "::error::${var} ausente em .env.production"
+              exit 1
             fi
+            echo "${var} configurado"
           done
-          [ "$missing" -eq 1 ] && exit 1
-
-          printf 'VITE_SUPABASE_URL=%s\n' "$VITE_SUPABASE_URL" > .env.production.local
-          printf 'VITE_SUPABASE_PUBLISHABLE_KEY=%s\n' "$VITE_SUPABASE_PUBLISHABLE_KEY" >> .env.production.local
-          printf 'VITE_SUPABASE_PROJECT_ID=%s\n' "$VITE_SUPABASE_PROJECT_ID" >> .env.production.local
-          echo "Variáveis de produção carregadas via GitHub Secrets"
 
       - name: Build Vercel for Production
         run: yarn vercel build --prod --token=$VERCEL_TOKEN --scope=$VERCEL_SCOPE
