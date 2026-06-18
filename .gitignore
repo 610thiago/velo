@@ -30,7 +30,7 @@ dist-ssr
 /playwright/.cache/
 /playwright/.auth/
 
-#.env
+.env
 .playwright-mcp/
 
 ./docs/db-password.txt
