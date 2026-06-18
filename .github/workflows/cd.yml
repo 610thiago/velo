@@ -176,10 +176,50 @@ jobs:
           --environment=production \
           --token=$VERCEL_TOKEN \
           --scope=$VERCEL_SCOPE
-          
+
+      # Vite só embute VITE_* se estiverem no ambiente do processo de build.
+      # Copiar para .env.production.local garante que o vite build as leia.
+      - name: Prepare Vite production environment
+        run: |
+          if [ ! -f .vercel/.env.production.local ]; then
+            echo "::error::.vercel/.env.production.local not found. Configure as variáveis no ambiente Production da Vercel."
+            exit 1
+          fi
+          cp .vercel/.env.production.local .env.production.local
+          for var in VITE_SUPABASE_URL VITE_SUPABASE_PUBLISHABLE_KEY VITE_SUPABASE_PROJECT_ID; do
+            if ! grep -q "^${var}=" .env.production.local; then
+              echo "::error::${var} ausente no ambiente Production da Vercel."
+              exit 1
+            fi
+            value=$(grep "^${var}=" .env.production.local | cut -d= -f2- | tr -d '"')
+            if [ -z "$value" ]; then
+              echo "::error::${var} está vazio no ambiente Production da Vercel."
+              exit 1
+            fi
+            echo "${var} configurado"
+          done
+
       - name: Build Vercel for Production
-        run: npx vercel env run -e production -- npx vercel build --prod --token=$VERCEL_TOKEN --scope=$VERCEL_SCOPE
-        
+        run: yarn vercel build --prod --token=$VERCEL_TOKEN --scope=$VERCEL_SCOPE
+
+      - name: Verify Supabase config in production bundle
+        run: |
+          PROJECT_ID=$(grep '^VITE_SUPABASE_PROJECT_ID=' .env.production.local | cut -d= -f2- | tr -d '"')
+          JS_FILE=$(find .vercel/output/static/assets dist/assets -name 'index-*.js' 2>/dev/null | head -1)
+          if [ -z "$JS_FILE" ]; then
+            echo "::error::Bundle JS de produção não encontrado após o build."
+            exit 1
+          fi
+          if ! grep -q "supabase.co" "$JS_FILE"; then
+            echo "::error::Bundle sem supabase.co — VITE_SUPABASE_URL não foi embutida no build."
+            exit 1
+          fi
+          if ! grep -q "$PROJECT_ID" "$JS_FILE"; then
+            echo "::error::Bundle sem o project ID de produção ($PROJECT_ID)."
+            exit 1
+          fi
+          echo "Bundle de produção verificado: $JS_FILE"
+
       - name: Deploy to Production
         run: |
           yarn vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN --scope=$VERCEL_SCOPE
