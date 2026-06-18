@@ -142,11 +142,32 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Vercel promote
-      run: |
-        npx vercel@latest promote ${{ needs.build-and-deploy.outputs.deployment-url }} \
-        --token=$VERCEL_TOKEN \
-        --scope=$VERCEL_SCOPE \
-        --yes
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Pull Vercel Config for Production
+        run: |
+          yarn vercel pull --yes \
+          --environment=production \
+          --token=$VERCEL_TOKEN \
+          --scope=$VERCEL_SCOPE
+          
+      - name: Build Vercel for Production
+        run: yarn vercel build --prod --token=$VERCEL_TOKEN
+        
+      - name: Deploy to Production
+        run: |
+          yarn vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN --scope=$VERCEL_SCOPE
         
     
